@@ -4,12 +4,21 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
 <title>一次関数トランプ（神経衰弱、ババ抜き版）</title>
-<link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#001428">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
-<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
+
 <style>
+  :root{ --bg1:#001428; --bg2:#00263e; --panel:#021a2d; --accent:#ffd966; }
+  html,body{height:100%; margin:0; font-family:"Segoe UI",sans-serif; background:linear-gradient(var(--bg1),var(--bg2)); color:#fff;}
+  h1{font-size:40px; font-weight:800; text-align:center; margin:28px 0;}
+  .container-box{background:var(--panel); padding:20px 26px; border-radius:14px; max-width: 90%; width: auto; box-shadow:0 0 8px #0007; margin:0 auto;}
+  button{padding:8px 10px;border-radius:6px;border:none;cursor:pointer;background:#fff;color:#000;}
+  input[type=number]{padding:6px;border-radius:6px;border:none;width:80px;}
+  .small{font-size:13px;opacity:.9}
+  /* ===== 以下 CSS すべて元ファイルそのまま ===== */
+
   :root{ --bg1:#001428; --bg2:#00263e; --panel:#021a2d; --accent:#ffd966; }
   html,body{height:100%; margin:0; font-family:"Segoe UI",sans-serif; background:linear-gradient(var(--bg1),var(--bg2)); color:#fff;}
   h1{font-size:40px; font-weight:800; text-align:center; margin:28px 0;}
@@ -166,50 +175,16 @@
       margin-right:6px;
     }
   }
-<style>
-<!-- ルール説明モーダル -->
-<!-- 修正後 -->
-<div id="ruleModal" class="modal-back" style="display:none;">
-  <div class="modal" style="max-width:800px;">
-    <div style="display:flex;justify-content:space-between;align-items:center;">
-      <div style="font-weight:800;font-size:20px;">このゲームについて</div>
-      <button onclick="closeRuleModal()">閉じる</button>
-    </div>
-
-    <div style="margin-top:12px;line-height:1.7;">
-      <p>
-        このゲームは、一次関数の「式」と「グラフ」を対応づけて学ぶ学習カードゲームです。
-        同じ一次関数を表すカードを見つけることで、式とグラフの関係を楽しく学びます。
-      </p>
-
-      <h3>🧠 神経衰弱</h3>
-      <ul>
-        <li>同じ一次関数を表す「式」と「グラフ」をペアでそろえます</li>
-        <li>正しいペアをそろえるとカードを獲得できます</li>
-        <li>ゲーム終了時に、取ったカード枚数が多い人の勝ちです</li>
-        <li>カード枚数が同じ場合は引き分けになります</li>
-      </ul>
-
-      <h3>🃏 ババ抜き</h3>
-      <ul>
-        <li>JOKER（ババ）は他のカードとペアになりません</li>
-        <li>自分の番で、相手の手札からカードを1枚引きます</li>
-        <li>同じ一次関数のペアができたら場に出します</li>
-        <li>最後までJOKERを持っている人が負けです</li>
-        <li>最後までカードを持っていない人が勝ちになります</li>
-      </ul>
-    </div>
-  </div>
-</div>
-/* 閉じる系ボタンを赤く */
+/* モーダル内の「閉じる」ボタンを赤色にする */
 .modal button,
 #graphModal button,
 #matchModal button,
 #cpuCardModal button,
 #largeCardModal button {
-  color:#d32f2f;
-  font-weight:800;
+  color: #d32f2f;       /* 赤文字 */
+  font-weight: 800;
 }
+
 </style>
 </head>
 <body>
@@ -237,11 +212,9 @@
         <button data-level="5" onclick="setCPULevel(5)" title="完全記憶／とても高速" style="margin-left:6px;">5<br><span style="font-size:10px">最強</span></button>
       </div>
     </div>
-      <div style="margin-top:22px; display:flex; gap:8px; flex-wrap:wrap;">
+    <div style="margin-top:22px;">
+      <button onclick="startGameFromHome()">▶ ゲーム開始</button>
       <button onclick="openSetup()" style="margin-left:8px;">プレイヤー設定</button>
-       <button onclick="openRuleModal()" style="margin-left:8px;font-weight:700;">
-  📘 遊び方
-</button>
     </div>
   </div>
   <div class="small" style="margin-top:8px;opacity:0.9;">※ ペア数は手動入力できます（3〜10）。複数人プレイはプレイヤー設定で。</div>
@@ -488,7 +461,7 @@ function makeMiniGraph(card){
   // 関数描画
   if(card && card.a !== null && card.a !== undefined){
     const UNIT = 20; // 20px per x unit
-    ctx.strokeStyle = '#1976d2'; ctx.lineWidth = 2;
+    ctx.strokeStyle = '#1976d2'; ctx.lineWidth = window.innerWidth < 600 ? 4 : 3;
     ctx.beginPath();
     let started=false;
     for(let px=-cvs.width/2; px<=cvs.width/2; px+=2){
@@ -501,7 +474,7 @@ function makeMiniGraph(card){
   } else {
     // Joker: 薄い文字
     ctx.fillStyle='#000';
-    ctx.font = '12px sans-serif';
+    ctx.font = (window.innerWidth < 600 ? '16px' : '13px') + ' sans-serif';
     ctx.textAlign = 'center';
     ctx.fillText('JOKER', 0, 4);
   }
@@ -537,15 +510,6 @@ function selectMode(m){
   const mAbb = document.getElementById('modeBabaBtn');
   if(mEmb) mEmb.style.opacity=(m==='memory'?1:0.6);
   if(mAbb) mAbb.style.opacity=(m==='babanuki'?1:0.6);
-}
-function openRuleModal(){
-  const modal = document.getElementById('ruleModal');
-  if(modal) modal.style.display = 'flex';
-}
-
-function closeRuleModal(){
-  const modal = document.getElementById('ruleModal');
-  if(modal) modal.style.display = 'none';
 }
 
 // 新: ホームの5段ボタンを操作する関数（ツールチップ付き）
@@ -668,15 +632,20 @@ function startMemory(pairCount){
   for(let a=-4;a<=4;a++) for(let b=-3;b<=3;b++) if(a!==0) pool.push({a,b});
   const selected = shuffle(pool).slice(0,pairCount);
   deckCards=[];
-  selected.forEach(s=>{
-    const types=['formula','detail','graph','table'];
-    const t1=types[randInt(types.length)];
-    let t2=types[randInt(types.length)];
-    while(t2===t1) t2=types[randInt(types.length)];
-    deckCards.push({a:s.a,b:s.b,type:t1});
-    deckCards.push({a:s.a,b:s.b,type:t2});
-    usedFunctionsSet.add(`${s.a},${s.b}`);
-  });
+ selected.forEach(s=>{
+  // 追加：table と detail（傾き・切片）を含める
+  const types = ['formula','graph','table','detail'];
+
+  const t1 = types[randInt(types.length)];
+  let t2 = types[randInt(types.length)];
+  while(t2 === t1) t2 = types[randInt(types.length)];
+
+  deckCards.push({a:s.a,b:s.b,type:t1});
+  deckCards.push({a:s.a,b:s.b,type:t2});
+
+  usedFunctionsSet.add(`${s.a},${s.b}`);
+});
+
   shuffle(deckCards);
   remainingPairs = deckCards.length/2;
   renderMemoryTable();
@@ -685,48 +654,54 @@ function startMemory(pairCount){
 }
 function renderMemoryTable(){
   if(cardArea) cardArea.innerHTML='';
-  const grid = document.createElement('div'); grid.className='card-grid';
+  const grid = document.createElement('div');
+  grid.className='card-grid';
+
   deckCards.forEach((c,idx)=>{
-    const wrap=document.createElement('div'); wrap.className='card'; wrap.dataset.index=idx;
-    const inner=document.createElement('div'); inner.className='card-inner';
-    const front=document.createElement('div'); front.className='face front'; front.textContent='?';
-    const back=document.createElement('div'); back.className='face back';
-    if(c.type==='formula') back.innerHTML=`<div style="font-weight:800">${formatEq(c.a,c.b)}</div>`;
-    else if(c.type==='detail') back.innerHTML=`a=${c.a}<br>b=${c.b}`;
-    else if(c.type==='graph') { back.innerHTML=`<div style="font-weight:700">📈 グラフ</div>`; }
-    else if(c.type==='table') back.innerHTML = makeTableHTML(c.a,c.b);
-    inner.appendChild(front); inner.appendChild(back); wrap.appendChild(inner); grid.appendChild(wrap);
+    const wrap = document.createElement('div');
+    wrap.className='card';
+    wrap.dataset.index = idx;
 
-    wrap.addEventListener('click', ()=> {
+    const inner = document.createElement('div');
+    inner.className='card-inner';
+
+    const front = document.createElement('div');
+    front.className='face front';
+    front.textContent='?';
+
+    const back = document.createElement('div');
+    back.className='face back';
+
+    if(c.type==='formula'){
+      back.innerHTML = `<div style="font-weight:800">${formatEq(c.a,c.b)}</div>`;
+    } else if(c.type==='graph'){
+      back.innerHTML = `<div style="font-weight:700">📈 グラフ</div>`;
+    } else if(c.type==='table'){
+      back.innerHTML = makeTableHTML(c.a,c.b);
+    }
+
+    inner.appendChild(front);
+    inner.appendChild(back);
+    wrap.appendChild(inner);
+    grid.appendChild(wrap);
+
+    // ✅ クリックは card（wrap）だけで受ける
+    wrap.addEventListener('click', ()=>{
       if(disableClicks) return;
-      if(wrap.classList.contains('matched') || wrap.classList.contains('flipped')) return;
+      if(wrap.classList.contains('matched')) return;
+      if(wrap.classList.contains('flipped')) return;
 
-      if(c.type==='graph'){
-        wrap.classList.add('flipped');
+      onCardClickedMemory(idx);
+
+      // グラフカードだけ大表示（既存仕様）
+      if(c.type === 'graph'){
         showGraphLarge(c);
-        // 統一: 5秒表示（CARD_OPEN_TIME）
-        setTimeout(() => {
-            wrap.classList.remove('flipped');
-            if(firstFlip !== null){
-                const firstCardEl = document.querySelector(`.card[data-index='${firstFlip}']`);
-                if(firstCardEl) firstCardEl.classList.remove('flipped');
-                firstFlip = null;
-                turnIndex = (turnIndex+1)%players;
-                updateTurnDisplay();
-                startTurnTimer();
-                if(playerConfig[turnIndex] && playerConfig[turnIndex].type==='cpu') setTimeout(cpuPlayMemory,400);
-            }
-            disableClicks = false;
-        }, CARD_OPEN_TIME);
-        disableClicks = true;
-      } else {
-        onCardClickedMemory(idx);
       }
     });
   });
-  if(cardArea) cardArea.appendChild(grid);
-}
 
+  cardArea.appendChild(grid);
+}
 function onCardClickedMemory(idx){
   if(disableClicks) return;
   const card = document.querySelector(`.card[data-index='${idx}']`);
@@ -860,15 +835,20 @@ function startBabanuki(pairCount){
   for(let a=-4;a<=4;a++) for(let b=-3;b<=3;b++) if(a!==0) pool.push({a,b});
   const sel = shuffle(pool).slice(0,pairCount);
   let deck = [];
-  sel.forEach(s=>{
-    const types=['formula','detail','graph','table'];
-    const t1=types[randInt(types.length)];
-    let t2=types[randInt(types.length)];
-    while(t2===t1) t2=types[randInt(types.length)];
-    deck.push({a:s.a,b:s.b,type:t1});
-    deck.push({a:s.a,b:s.b,type:t2});
-    usedFunctionsSet.add(`${s.a},${s.b}`);
-  });
+sel.forEach(s=>{
+  // 追加：table と detail（傾き・切片）
+  const types = ['formula','graph','table','detail'];
+
+  const t1 = types[randInt(types.length)];
+  let t2 = types[randInt(types.length)];
+  while(t2 === t1) t2 = types[randInt(types.length)];
+
+  deck.push({a:s.a,b:s.b,type:t1});
+  deck.push({a:s.a,b:s.b,type:t2});
+
+  usedFunctionsSet.add(`${s.a},${s.b}`);
+});
+
   deck.push({a:null,b:null,text:'JOKER',type:'joker'});
   shuffle(deck);
 
@@ -1159,6 +1139,11 @@ function humanDrawFrom(ti){
               // fallback to local draw
               try {
                 const ctx = canvas.getContext('2d');
+  // === 正方形グリッド用スケール補正 ===
+  const unit = Math.min(canvas.width, canvas.height) / 20;
+  // const scaleX = unit;
+  // const scaleY = unit;
+
                 ctx.fillStyle='#fff'; ctx.fillRect(0,0,canvas.width,canvas.height);
                 ctx.save(); ctx.translate(canvas.width/2, canvas.height/2);
                 ctx.strokeStyle = '#1976d2'; ctx.lineWidth=3;
@@ -1507,6 +1492,25 @@ playerConfig = [ {name:'P1', type:'human', strength:3}, {name:'P2', type:'cpu', 
 // setCPULevelで見た目初期化
 setCPULevel(selectedCPULevel);
 
+
+// === 共通：正方形グリッド用スケール取得 ===
+function getSquareUnit(canvas, range=10){
+  return Math.min(canvas.width, canvas.height) / (range*2);
+}
+
+
+// --- 神経衰弱 勝敗判定（カード枚数） ---
+function showMemoryResult(playerCount, cpuCount) {
+  let result = "";
+  if (playerCount > cpuCount) {
+    result = "あなたの勝ち！";
+  } else if (playerCount < cpuCount) {
+    result = "CPUの勝ち";
+  } else {
+    result = "引き分け";
+  }
+  alert(`結果\nあなた：${playerCount}枚\nCPU：${cpuCount}枚\n${result}`);
+}
 </script>
 
 <div id="largeCardModal" class="modal-back" style="display:none;">
@@ -1524,41 +1528,66 @@ setCPULevel(selectedCPULevel);
 </div>
 
 <script>
-/* ==== 統合モーダル制御スクリプト（既存コードを壊さずオーバーライド） ==== */
+
+/* ==== 統合モーダル制御スクリプト（修正版） ==== */
 (function(){
-  // If cpuWaitFlag is already defined in page, reuse it; otherwise create it.
   if (typeof window.cpuWaitFlag === 'undefined') window.cpuWaitFlag = false;
 
-  const largeModal = document.getElementById('largeCardModal');
-  const largeBody = document.getElementById('largeCardBody');
-  const largeTitle = document.getElementById('largeCardTitle');
-  const largeClose = document.getElementById('largeClose');
-  const largeZoomIn = document.getElementById('largeZoomIn');
+  const largeModal   = document.getElementById('largeCardModal');
+  const largeBody    = document.getElementById('largeCardBody');
+  const largeTitle   = document.getElementById('largeCardTitle');
+  const largeClose   = document.getElementById('largeClose');
+  const largeZoomIn  = document.getElementById('largeZoomIn');
   const largeZoomOut = document.getElementById('largeZoomOut');
-  let largeGraphScale = 1;
-  let lastLargeGraphCard = null;
 
-  function showLargeHTML(title, html){
-    largeTitle.textContent = title||'カード';
+  let zoomScale = 1;
+
+  function closeLarge(){
+    if(largeModal) largeModal.style.display = 'none';
+    window.cpuWaitFlag = false;
+
+    if(window.postDrawAction === 'babaDiscardPhase'){
+      window.postDrawAction = null;
+    }
+  }
+
+  if(largeClose){
+    largeClose.onclick = closeLarge;
+  }
+
+  if(largeZoomIn){
+    largeZoomIn.onclick = () => {
+      zoomScale *= 1.2;
+      largeBody.style.transform = `scale(${zoomScale})`;
+      largeBody.style.transformOrigin = 'top center';
+    };
+  }
+
+  if(largeZoomOut){
+    largeZoomOut.onclick = () => {
+      zoomScale /= 1.2;
+      largeBody.style.transform = `scale(${zoomScale})`;
+      largeBody.style.transformOrigin = 'top center';
+    };
+  }
+
+  // 外部から呼ぶ関数
+  window.showLargeHTML = function(title, html){
+    if(!largeModal) return;
+    zoomScale = 1;
+    largeBody.style.transform = 'scale(1)';
+    largeTitle.textContent = title || 'カード';
     largeBody.innerHTML = html;
     largeModal.style.display = 'flex';
-    // ensure styles: white background
-    largeModal.querySelector('.modal').style.background = '#fff';
     window.cpuWaitFlag = true;
-  }
-  
-  function closeLargeModal(){
-    largeModal.style.display = 'none';
-    largeBody.innerHTML = '';
-    window.cpuWaitFlag = false;
-    lastLargeGraphCard = null;
+  };
+})();
     
     // --- 【追加・修正】ドロー後の処理 ---
     if(window.postDrawAction === 'babaDiscardPhase' && typeof window.startDiscardPhase === 'function'){
         window.startDiscardPhase();
     }
     // ---------------------------------
-  }
   
   function showLargeGraph(card){
     lastLargeGraphCard = card;
@@ -1580,6 +1609,11 @@ setCPULevel(selectedCPULevel);
     if(!canvas) return;
     canvas._cardRef = card;
     const ctx = canvas.getContext('2d');
+  // === 正方形グリッド用スケール補正 ===
+  const unit = Math.min(canvas.width, canvas.height) / 20;
+  // const scaleX = unit;
+  // const scaleY = unit;
+
     const w = canvas.width, h = canvas.height;
     const UNIT = 40 * (scale||1);
     ctx.fillStyle = '#fff'; ctx.fillRect(0,0,w,h);
@@ -1655,11 +1689,32 @@ setCPULevel(selectedCPULevel);
   };
 
   // expose closeLargeModal for external use
+function closeLargeModal() {
+  const modal = document.getElementById("largeModal");
+  if (modal) modal.style.display = "none";
+}
+
   window.closeLargeModal = closeLargeModal;
 
   console.log('Unified large modal integration active (overrides applied).');
 
-})();
+// === 共通：正方形グリッド用スケール取得 ===
+function getSquareUnit(canvas, range=10){
+  return Math.min(canvas.width, canvas.height) / (range*2);
+}
+
+// --- 神経衰弱 勝敗判定（カード枚数） ---
+function showMemoryResult(playerCount, cpuCount) {
+  let result = "";
+  if (playerCount > cpuCount) {
+    result = "あなたの勝ち！";
+  } else if (playerCount < cpuCount) {
+    result = "CPUの勝ち";
+  } else {
+    result = "引き分け";
+  }
+  alert(`結果\nあなた：${playerCount}枚\nCPU：${cpuCount}枚\n${result}`);
+}
 </script>
 
 <script>
@@ -1671,7 +1726,91 @@ function startDiscardPhase(){
   renderBabaUI();
 }
 // --- /補助 ---
- 
+
+// === 共通：正方形グリッド用スケール取得 ===
+function getSquareUnit(canvas, range=10){
+  return Math.min(canvas.width, canvas.height) / (range*2);
+}
+
+
+// --- 神経衰弱 勝敗判定（カード枚数） ---
+function showMemoryResult(playerCount, cpuCount) {
+  let result = "";
+  if (playerCount > cpuCount) {
+    result = "あなたの勝ち！";
+  } else if (playerCount < cpuCount) {
+    result = "CPUの勝ち";
+  } else {
+    result = "引き分け";
+  }
+  alert(`結果\nあなた：${playerCount}枚\nCPU：${cpuCount}枚\n${result}`);
+}
+</script>
+
+
+<!-- ===== 説明ボタン（常時表示・修正版）===== -->
+<button id="helpBtn"
+ style="position:fixed;top:10px;right:10px;z-index:9999;padding:8px 14px;border-radius:8px;">
+説明
+</button>
+
+<div id="helpModal"
+ style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;
+ background:rgba(0,0,0,0.6);z-index:10000;">
+  <div style="background:#fff;color:#000;max-width:700px;margin:8% auto;
+              padding:20px;border-radius:10px;">
+    <h2>このゲームについて</h2>
+    <p>
+      このゲームは、一次関数の「式」と「グラフ」を対応づけて学ぶ
+      学習カードゲームです。
+    </p>
+
+    <h3>神経衰弱</h3>
+    <ul>
+      <li>同じ一次関数を表す「式」と「グラフ」をペアでそろえます</li>
+      <li>ゲーム終了時に、取ったカード枚数が多い方の勝ちです</li>
+      <li>カード枚数が同じ場合は「引き分け」になります</li>
+    </ul>
+
+    <h3>ババ抜き</h3>
+<ul>
+<li>JOKER（ババ）は他のカードとペアになりません</li>
+<li>最後までJOKERを持っている人が負けになります</li>
+</ul>
+    <ul>
+      <li>相手の手札からカードを1枚引きます</li>
+      <li>同じ一次関数のペアができたら場に出します</li>
+      <li>最後までカードを持っていない人が勝ちです</li>
+    </ul>
+
+    <button onclick="document.getElementById('helpModal').style.display='none'">
+      閉じる
+    </button>
+  </div>
+</div>
+
+<script>
+(function(){
+  const btn = document.getElementById('helpBtn');
+  const modal = document.getElementById('helpModal');
+  if(btn && modal){
+    btn.onclick = ()=> modal.style.display='block';
+  }
+})();
+</script>
+<!-- ===== 説明ボタンここまで ===== -->
+
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  if (!localStorage.getItem("helpShownOnce")) {
+    const modal = document.getElementById("helpModal");
+    if (modal) {
+      modal.style.display = "flex";
+      localStorage.setItem("helpShownOnce", "true");
+    }
+  }
+});
 </script>
 
 </body>
