@@ -166,6 +166,40 @@
       margin-right:6px;
     }
   }
+<!-- ルール説明モーダル -->
+<div id="ruleModal" class="modal-back" style="display:flex;">
+  <div class="modal" style="max-width:800px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+      <div style="font-weight:800;font-size:20px;">このゲームについて</div>
+      <button onclick="closeRuleModal()">閉じる</button>
+    </div>
+
+    <div style="margin-top:12px;line-height:1.7;">
+      <p>
+        このゲームは、一次関数の「式」と「グラフ」を対応づけて学ぶ学習カードゲームです。
+        同じ一次関数を表すカードを見つけることで、式とグラフの関係を楽しく学びます。
+      </p>
+
+      <h3>🧠 神経衰弱</h3>
+      <ul>
+        <li>同じ一次関数を表す「式」と「グラフ」をペアでそろえます</li>
+        <li>正しいペアをそろえるとカードを獲得できます</li>
+        <li>ゲーム終了時に、取ったカード枚数が多い人の勝ちです</li>
+        <li>カード枚数が同じ場合は引き分けになります</li>
+      </ul>
+
+      <h3>🃏 ババ抜き</h3>
+      <ul>
+        <li>JOKER（ババ）は他のカードとペアになりません</li>
+        <li>自分の番で、相手の手札からカードを1枚引きます</li>
+        <li>同じ一次関数のペアができたら場に出します</li>
+        <li>最後までJOKERを持っている人が負けです</li>
+        <li>最後までカードを持っていない人が勝ちになります</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
   .modal button,
 #graphModal button,
 #matchModal button,
@@ -498,6 +532,15 @@ function selectMode(m){
   const mAbb = document.getElementById('modeBabaBtn');
   if(mEmb) mEmb.style.opacity=(m==='memory'?1:0.6);
   if(mAbb) mAbb.style.opacity=(m==='babanuki'?1:0.6);
+}
+function openRuleModal(){
+  const modal = document.getElementById('ruleModal');
+  if(modal) modal.style.display = 'flex';
+}
+
+function closeRuleModal(){
+  const modal = document.getElementById('ruleModal');
+  if(modal) modal.style.display = 'none';
 }
 
 // 新: ホームの5段ボタンを操作する関数（ツールチップ付き）
