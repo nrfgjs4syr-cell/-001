@@ -167,7 +167,8 @@
     }
   }
 <!-- ルール説明モーダル -->
-<div id="ruleModal" class="modal-back" style="display:flex;">
+<!-- 修正後 -->
+<div id="ruleModal" class="modal-back" style="display:none;">
   <div class="modal" style="max-width:800px;">
     <div style="display:flex;justify-content:space-between;align-items:center;">
       <div style="font-weight:800;font-size:20px;">このゲームについて</div>
@@ -199,14 +200,17 @@
     </div>
   </div>
 </div>
+/* 閉じるボタンを赤くする */
+.modal button {
+  background: #d32f2f;   /* 赤 */
+  color: #fff;           /* 白文字 */
+  font-weight: 700;
+}
 
-  .modal button,
-#graphModal button,
-#matchModal button,
-#cpuCardModal button,
-#largeCardModal button {
-  color: #d32f2f;       /* 赤文字 */
-  font-weight: 800;
+.modal button:hover {
+  background: #b71c1c;
+}
+
 </style>
 </head>
 <body>
